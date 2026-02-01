@@ -1,0 +1,259 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+             #loadingBar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width: 100%;
+                 height: 750px;
+                 background-color:rgba(200,200,200,0.8);
+                 -webkit-transition: all 0.5s ease;
+                 -moz-transition: all 0.5s ease;
+                 -ms-transition: all 0.5s ease;
+                 -o-transition: all 0.5s ease;
+                 transition: all 0.5s ease;
+                 opacity:1;
+             }
+
+             #bar {
+                 position:absolute;
+                 top:0px;
+                 left:0px;
+                 width:20px;
+                 height:20px;
+                 margin:auto auto auto auto;
+                 border-radius:11px;
+                 border:2px solid rgba(30,30,30,0.05);
+                 background: rgb(0, 173, 246); /* Old browsers */
+                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
+             }
+
+             #border {
+                 position:absolute;
+                 top:10px;
+                 left:10px;
+                 width:500px;
+                 height:23px;
+                 margin:auto auto auto auto;
+                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
+                 border-radius:10px;
+             }
+
+             #text {
+                 position:absolute;
+                 top:8px;
+                 left:530px;
+                 width:30px;
+                 height:50px;
+                 margin:auto auto auto auto;
+                 font-size:22px;
+                 color: #000000;
+             }
+
+             div.outerBorder {
+                 position:relative;
+                 top:400px;
+                 width:600px;
+                 height:44px;
+                 margin:auto auto auto auto;
+                 border:8px solid rgba(0,0,0,0.1);
+                 background: rgb(252,252,252); /* Old browsers */
+                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
+                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
+                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
+                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
+                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
+                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
+                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
+                 border-radius:72px;
+                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+             }
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+            <div id="loadingBar">
+              <div class="outerBorder">
+                <div id="text">0%</div>
+                <div id="border">
+                  <div id="bar"></div>
+                </div>
+              </div>
+            </div>
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#ff6666", "id": "9CD0E6B6", "label": "9CD0E6B6", "shape": "dot", "title": "UUID: 9CD0E6B6-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "9CD90EC1", "label": "9CD90EC1", "shape": "dot", "title": "UUID: 9CD90EC1-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "9CD9A723", "label": "9CD9A723", "shape": "dot", "title": "UUID: 9CD9A723-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "9CE483DA", "label": "9CE483DA", "shape": "dot", "title": "UUID: 9CE483DA-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "E050730E", "label": "E050730E", "shape": "dot", "title": "UUID: E050730E-F863-7B5C-A3F8-91877C7B6136"}, {"color": "#ff9999", "id": "8C29A465", "label": "8C29A465", "shape": "dot", "title": "UUID: 8C29A465-091D-4655-9D09-CC943546082F"}, {"color": "#ff9999", "id": "9910FF6F", "label": "9910FF6F", "shape": "dot", "title": "UUID: 9910FF6F-88A1-2B54-A188-C9B4642B02F3"}, {"color": "#ff9999", "id": "B6A9A6D2", "label": "B6A9A6D2", "shape": "dot", "title": "UUID: B6A9A6D2-CDA4-1D51-A4CD-D2EF611DD197"}, {"color": "#ff9999", "id": "B26F0604", "label": "B26F0604", "shape": "dot", "title": "UUID: B26F0604-3EFF-6654-BF3E-ECB13466147D"}, {"color": "#ff9999", "id": "0735914A", "label": "0735914A", "shape": "dot", "title": "UUID: 0735914A-5943-7155-8359-3174E57134DA"}, {"color": "#ff9999", "id": "51BF0B50", "label": "51BF0B50", "shape": "dot", "title": "UUID: 51BF0B50-689F-5C54-9F68-AE54A45C06C6"}, {"color": "#ff6666", "id": "3076FCED", "label": "3076FCED", "shape": "dot", "title": "UUID: 3076FCED-39BE-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "9E4E5C40", "label": "9E4E5C40", "shape": "dot", "title": "UUID: 9E4E5C40-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "A1B4E4AF", "label": "A1B4E4AF", "shape": "dot", "title": "UUID: A1B4E4AF-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "A1D91757", "label": "A1D91757", "shape": "dot", "title": "UUID: A1D91757-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "23DB7793", "label": "23DB7793", "shape": "dot", "title": "UUID: 23DB7793-0FE5-8E5A-A50F-DA502A8E4AC0"}, {"color": "#ff9999", "id": "9E561FC8", "label": "9E561FC8", "shape": "dot", "title": "UUID: 9E561FC8-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "9E56CBF5", "label": "9E56CBF5", "shape": "dot", "title": "UUID: 9E56CBF5-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "9E62D651", "label": "9E62D651", "shape": "dot", "title": "UUID: 9E62D651-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "234D9DA9", "label": "234D9DA9", "shape": "dot", "title": "UUID: 234D9DA9-A60B-2A52-8BA6-FAF9C22A33EA"}, {"color": "#ff9999", "id": "9E66700C", "label": "9E66700C", "shape": "dot", "title": "UUID: 9E66700C-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "978D919A", "label": "978D919A", "shape": "dot", "title": "UUID: 978D919A-AA99-1054-99AA-97C88410A1D4"}, {"color": "#ff9999", "id": "9F0971C7", "label": "9F0971C7", "shape": "dot", "title": "UUID: 9F0971C7-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "9F310C96", "label": "9F310C96", "shape": "dot", "title": "UUID: 9F310C96-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "3D247DCE", "label": "3D247DCE", "shape": "dot", "title": "UUID: 3D247DCE-B483-1E59-83B4-DBE1E91ECC87"}, {"color": "#ff9999", "id": "9F369E36", "label": "9F369E36", "shape": "dot", "title": "UUID: 9F369E36-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "9F4632B1", "label": "9F4632B1", "shape": "dot", "title": "UUID: 9F4632B1-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "4C9EFE5E", "label": "4C9EFE5E", "shape": "dot", "title": "UUID: 4C9EFE5E-50B1-F352-B150-755AD2F32CEF"}, {"color": "#ff9999", "id": "9F4DD6EF", "label": "9F4DD6EF", "shape": "dot", "title": "UUID: 9F4DD6EF-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "9E667E23", "label": "9E667E23", "shape": "dot", "title": "UUID: 9E667E23-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "0C491249", "label": "0C491249", "shape": "dot", "title": "UUID: 0C491249-5928-4859-A859-F894F9484580"}, {"color": "#ff9999", "id": "A514848D", "label": "A514848D", "shape": "dot", "title": "UUID: A514848D-2760-9A59-A027-E6F5D99A2502"}, {"color": "#ff9999", "id": "9F097C9F", "label": "9F097C9F", "shape": "dot", "title": "UUID: 9F097C9F-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "83438FC8", "label": "83438FC8", "shape": "dot", "title": "UUID: 83438FC8-926E-BC5F-AE92-04489FBCA8CA"}, {"color": "#ff9999", "id": "9F31189A", "label": "9F31189A", "shape": "dot", "title": "UUID: 9F31189A-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "5699B2D1", "label": "5699B2D1", "shape": "dot", "title": "UUID: 5699B2D1-F019-235C-99F0-1D963C2393F3"}, {"color": "#ff9999", "id": "9F36A8C7", "label": "9F36A8C7", "shape": "dot", "title": "UUID: 9F36A8C7-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "EFF823D2", "label": "EFF823D2", "shape": "dot", "title": "UUID: EFF823D2-22FF-C056-BF22-360D56C0AE6E"}, {"color": "#ff9999", "id": "9F4641BF", "label": "9F4641BF", "shape": "dot", "title": "UUID: 9F4641BF-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "CA11BEA0", "label": "CA11BEA0", "shape": "dot", "title": "UUID: CA11BEA0-1164-9350-A411-7A5050931EBA"}, {"color": "#ff9999", "id": "9F4DE1C9", "label": "9F4DE1C9", "shape": "dot", "title": "UUID: 9F4DE1C9-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "D8151CB2", "label": "D8151CB2", "shape": "dot", "title": "UUID: D8151CB2-2CF6-B051-B62C-FC5141B0D737"}, {"color": "#ff9999", "id": "A1BC600F", "label": "A1BC600F", "shape": "dot", "title": "UUID: A1BC600F-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "A1BCF831", "label": "A1BCF831", "shape": "dot", "title": "UUID: A1BCF831-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "A1C8E204", "label": "A1C8E204", "shape": "dot", "title": "UUID: A1C8E204-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "A1E095C7", "label": "A1E095C7", "shape": "dot", "title": "UUID: A1E095C7-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "A1E12E23", "label": "A1E12E23", "shape": "dot", "title": "UUID: A1E12E23-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "A1ED9307", "label": "A1ED9307", "shape": "dot", "title": "UUID: A1ED9307-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "A6FAAF45", "label": "A6FAAF45", "shape": "dot", "title": "UUID: A6FAAF45-DF81-9853-81DF-2E6203986891"}, {"color": "#ff9999", "id": "A1F28C79", "label": "A1F28C79", "shape": "dot", "title": "UUID: A1F28C79-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "A1F29F02", "label": "A1F29F02", "shape": "dot", "title": "UUID: A1F29F02-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "698CCBF1", "label": "698CCBF1", "shape": "dot", "title": "UUID: 698CCBF1-3E8D-FE53-8D3E-B359E3FEA818"}, {"color": "#ff6666", "id": "26F86F5B", "label": "26F86F5B", "shape": "dot", "title": "UUID: 26F86F5B-39BE-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BA041E24", "label": "BA041E24", "shape": "dot", "title": "UUID: BA041E24-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BC680115", "label": "BC680115", "shape": "dot", "title": "UUID: BC680115-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "C956E3E6", "label": "C956E3E6", "shape": "dot", "title": "UUID: C956E3E6-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff6666", "id": "65C53022", "label": "65C53022", "shape": "dot", "title": "UUID: 65C53022-39C4-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BB5884F9", "label": "BB5884F9", "shape": "dot", "title": "UUID: BB5884F9-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BB623E16", "label": "BB623E16", "shape": "dot", "title": "UUID: BB623E16-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BBFEC27D", "label": "BBFEC27D", "shape": "dot", "title": "UUID: BBFEC27D-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BC035D5E", "label": "BC035D5E", "shape": "dot", "title": "UUID: BC035D5E-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BC9D755A", "label": "BC9D755A", "shape": "dot", "title": "UUID: BC9D755A-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BC9D9765", "label": "BC9D9765", "shape": "dot", "title": "UUID: BC9D9765-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BCA45C0D", "label": "BCA45C0D", "shape": "dot", "title": "UUID: BCA45C0D-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BD40D2D2", "label": "BD40D2D2", "shape": "dot", "title": "UUID: BD40D2D2-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BD4286AD", "label": "BD4286AD", "shape": "dot", "title": "UUID: BD4286AD-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BD6759E6", "label": "BD6759E6", "shape": "dot", "title": "UUID: BD6759E6-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "330061CF", "label": "330061CF", "shape": "dot", "title": "UUID: 330061CF-6BB3-C45E-B36B-B89D7EC4F443"}, {"color": "#ff9999", "id": "6C836AA2", "label": "6C836AA2", "shape": "dot", "title": "UUID: 6C836AA2-BB54-3A58-94BB-1E5D583A637E"}, {"color": "#ff9999", "id": "9D6CE3F1", "label": "9D6CE3F1", "shape": "dot", "title": "UUID: 9D6CE3F1-AA37-D656-B7AA-BA6D46D61C69"}, {"color": "#ff9999", "id": "91207D42", "label": "91207D42", "shape": "dot", "title": "UUID: 91207D42-8B6E-6454-AE8B-D3FF24648D84"}, {"color": "#ff6666", "id": "26CF82B9", "label": "26CF82B9", "shape": "dot", "title": "UUID: 26CF82B9-39BE-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BCA16969", "label": "BCA16969", "shape": "dot", "title": "UUID: BCA16969-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BDE72B85", "label": "BDE72B85", "shape": "dot", "title": "UUID: BDE72B85-DCD9-835C-99DC-32E13C838365"}, {"color": "#ff9999", "id": "BCAFCC8F", "label": "BCAFCC8F", "shape": "dot", "title": "UUID: BCAFCC8F-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BCC26BA5", "label": "BCC26BA5", "shape": "dot", "title": "UUID: BCC26BA5-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BCC6593B", "label": "BCC6593B", "shape": "dot", "title": "UUID: BCC6593B-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BCC6AB18", "label": "BCC6AB18", "shape": "dot", "title": "UUID: BCC6AB18-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BCC708B4", "label": "BCC708B4", "shape": "dot", "title": "UUID: BCC708B4-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BDCBDEF0", "label": "BDCBDEF0", "shape": "dot", "title": "UUID: BDCBDEF0-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BDCE02B8", "label": "BDCE02B8", "shape": "dot", "title": "UUID: BDCE02B8-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "C0E60490", "label": "C0E60490", "shape": "dot", "title": "UUID: C0E60490-62BE-7B5A-BE62-6F2DBA7BA087"}, {"color": "#ff9999", "id": "0A5174D8", "label": "0A5174D8", "shape": "dot", "title": "UUID: 0A5174D8-80FB-4258-BB80-C79A98427D6A"}, {"color": "#ff9999", "id": "76899EA5", "label": "76899EA5", "shape": "dot", "title": "UUID: 76899EA5-9D25-4352-A59D-8CB74243F4C0"}, {"color": "#ff9999", "id": "BD6232A0", "label": "BD6232A0", "shape": "dot", "title": "UUID: BD6232A0-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BDD8FBC6", "label": "BDD8FBC6", "shape": "dot", "title": "UUID: BDD8FBC6-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BCD81D8F", "label": "BCD81D8F", "shape": "dot", "title": "UUID: BCD81D8F-ED2A-D652-AAED-415912D66A14"}, {"color": "#ff9999", "id": "BDE10DDA", "label": "BDE10DDA", "shape": "dot", "title": "UUID: BDE10DDA-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "BDE25AFB", "label": "BDE25AFB", "shape": "dot", "title": "UUID: BDE25AFB-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "858963DE", "label": "858963DE", "shape": "dot", "title": "UUID: 858963DE-8B2A-7F5D-AA8B-5504CD7FECB5"}, {"color": "#ff9999", "id": "C0880937", "label": "C0880937", "shape": "dot", "title": "UUID: C0880937-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "0B77749C", "label": "0B77749C", "shape": "dot", "title": "UUID: 0B77749C-9349-D951-8993-7D70E1D9DB4C"}, {"color": "#ff9999", "id": "B02C7AB1", "label": "B02C7AB1", "shape": "dot", "title": "UUID: B02C7AB1-1D5E-E250-9E1D-F19070E2AA0A"}, {"color": "#ff9999", "id": "9AAAD6EB", "label": "9AAAD6EB", "shape": "dot", "title": "UUID: 9AAAD6EB-093F-7955-BF09-C26BD579D045"}, {"color": "#ff9999", "id": "0191F4F7", "label": "0191F4F7", "shape": "dot", "title": "UUID: 0191F4F7-146F-545F-AF14-25726F54928C"}, {"color": "#ff9999", "id": "4661D4E0", "label": "4661D4E0", "shape": "dot", "title": "UUID: 4661D4E0-7744-5955-8477-53FFD5593AEF"}, {"color": "#ff9999", "id": "C0A87483", "label": "C0A87483", "shape": "dot", "title": "UUID: C0A87483-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "C0AE1E09", "label": "C0AE1E09", "shape": "dot", "title": "UUID: C0AE1E09-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "C0A88A47", "label": "C0A88A47", "shape": "dot", "title": "UUID: C0A88A47-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "DF80BFE1", "label": "DF80BFE1", "shape": "dot", "title": "UUID: DF80BFE1-C472-6559-B2C4-0B2BE9658EC3"}, {"color": "#ff9999", "id": "C0AE3147", "label": "C0AE3147", "shape": "dot", "title": "UUID: C0AE3147-39CA-11E8-B8CE-15D78AC88FB6"}, {"color": "#ff9999", "id": "54DBE88D", "label": "54DBE88D", "shape": "dot", "title": "UUID: 54DBE88D-7343-8850-8373-A03A00883338"}, {"color": "#ff9999", "id": "5DDE5918", "label": "5DDE5918", "shape": "dot", "title": "UUID: 5DDE5918-B416-B152-96B4-F7F152B12C83"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9CD0E6B6"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "9CD90EC1"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "9CD9A723"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "9CE483DA"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "E050730E"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "E050730E"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "E050730E"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "8C29A465"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "9910FF6F"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "9910FF6F"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "B6A9A6D2"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "B26F0604"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "0735914A"}, {"arrows": "to", "from": "9CD0E6B6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "51BF0B50"}, {"arrows": "to", "from": "3076FCED", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9E4E5C40"}, {"arrows": "to", "from": "3076FCED", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "A1B4E4AF"}, {"arrows": "to", "from": "3076FCED", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "A1D91757"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E4E5C40"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "23DB7793"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "9E561FC8"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "9E56CBF5"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "9E62D651"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "234D9DA9"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "234D9DA9"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "234D9DA9"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "234D9DA9"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "234D9DA9"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9E66700C"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "978D919A"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "978D919A"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F0971C7"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F310C96"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "3D247DCE"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "3D247DCE"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F369E36"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F4632B1"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "4C9EFE5E"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "4C9EFE5E"}, {"arrows": "to", "from": "9E4E5C40", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F4DD6EF"}, {"arrows": "to", "from": "9E66700C", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9E667E23"}, {"arrows": "to", "from": "9E667E23", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0C491249"}, {"arrows": "to", "from": "9E667E23", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9E667E23"}, {"arrows": "to", "from": "9E667E23", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "A514848D"}, {"arrows": "to", "from": "9F0971C7", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F097C9F"}, {"arrows": "to", "from": "9F097C9F", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0C491249"}, {"arrows": "to", "from": "9F097C9F", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9F097C9F"}, {"arrows": "to", "from": "9F097C9F", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "83438FC8"}, {"arrows": "to", "from": "9F310C96", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F31189A"}, {"arrows": "to", "from": "9F31189A", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0C491249"}, {"arrows": "to", "from": "9F31189A", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9F31189A"}, {"arrows": "to", "from": "9F31189A", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "5699B2D1"}, {"arrows": "to", "from": "9F369E36", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F36A8C7"}, {"arrows": "to", "from": "9F36A8C7", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0C491249"}, {"arrows": "to", "from": "9F36A8C7", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9F36A8C7"}, {"arrows": "to", "from": "9F36A8C7", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "EFF823D2"}, {"arrows": "to", "from": "9F4632B1", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F4641BF"}, {"arrows": "to", "from": "9F4641BF", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0C491249"}, {"arrows": "to", "from": "9F4641BF", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9F4641BF"}, {"arrows": "to", "from": "9F4641BF", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "CA11BEA0"}, {"arrows": "to", "from": "9F4DD6EF", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "9F4DE1C9"}, {"arrows": "to", "from": "9F4DE1C9", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0C491249"}, {"arrows": "to", "from": "9F4DE1C9", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "9F4DE1C9"}, {"arrows": "to", "from": "9F4DE1C9", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "D8151CB2"}, {"arrows": "to", "from": "A1B4E4AF", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1B4E4AF"}, {"arrows": "to", "from": "A1B4E4AF", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1B4E4AF"}, {"arrows": "to", "from": "A1B4E4AF", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1B4E4AF"}, {"arrows": "to", "from": "A1B4E4AF", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1B4E4AF"}, {"arrows": "to", "from": "A1B4E4AF", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "23DB7793"}, {"arrows": "to", "from": "A1B4E4AF", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "A1BC600F"}, {"arrows": "to", "from": "A1B4E4AF", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "A1BCF831"}, {"arrows": "to", "from": "A1B4E4AF", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "A1C8E204"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1D91757"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "23DB7793"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "A1E095C7"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "A1E12E23"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "A1ED9307"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "234D9DA9"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "A6FAAF45"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "A6FAAF45"}, {"arrows": "to", "from": "A1D91757", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "A1F28C79"}, {"arrows": "to", "from": "A1F28C79", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "A1F29F02"}, {"arrows": "to", "from": "A1F29F02", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0C491249"}, {"arrows": "to", "from": "A1F29F02", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "A1F29F02"}, {"arrows": "to", "from": "A1F29F02", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "698CCBF1"}, {"arrows": "to", "from": "26F86F5B", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "BA041E24"}, {"arrows": "to", "from": "26F86F5B", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "BC680115"}, {"arrows": "to", "from": "26F86F5B", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "C956E3E6"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BB5884F9"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BB623E16"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BBFEC27D"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BC035D5E"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BC9D755A"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BC9D9765"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BCA45C0D"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BD40D2D2"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BD4286AD"}, {"arrows": "to", "from": "65C53022", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BD6759E6"}, {"arrows": "to", "from": "BB5884F9", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "330061CF"}, {"arrows": "to", "from": "BB623E16", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "6C836AA2"}, {"arrows": "to", "from": "BBFEC27D", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "330061CF"}, {"arrows": "to", "from": "BC035D5E", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "6C836AA2"}, {"arrows": "to", "from": "BC9D755A", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "9D6CE3F1"}, {"arrows": "to", "from": "BC9D9765", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "91207D42"}, {"arrows": "to", "from": "26CF82B9", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BCA16969"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "BDE72B85"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BCA16969"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BCA16969"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BCA16969"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BCAFCC8F"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "BCC26BA5"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "BCC6593B"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "BCC6AB18"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BCC708B4"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "BDCBDEF0"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BDCE02B8"}, {"arrows": "to", "from": "BCA16969", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "C0E60490"}, {"arrows": "to", "from": "BCA45C0D", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "6C836AA2"}, {"arrows": "to", "from": "BCAFCC8F", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BCAFCC8F"}, {"arrows": "to", "from": "BD40D2D2", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0A5174D8"}, {"arrows": "to", "from": "BD4286AD", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "76899EA5"}, {"arrows": "to", "from": "BD4286AD", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BD4286AD"}, {"arrows": "to", "from": "BD4286AD", "label": "EVENT_CONNECT", "title": "EVENT_CONNECT", "to": "BD6232A0"}, {"arrows": "to", "from": "BD6759E6", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "6C836AA2"}, {"arrows": "to", "from": "BDCE02B8", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BDCE02B8"}, {"arrows": "to", "from": "BDCE02B8", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BDCE02B8"}, {"arrows": "to", "from": "BDCE02B8", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BDCE02B8"}, {"arrows": "to", "from": "BDCE02B8", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BDCE02B8"}, {"arrows": "to", "from": "BDCE02B8", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BDD8FBC6"}, {"arrows": "to", "from": "BDD8FBC6", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "BDD8FBC6"}, {"arrows": "to", "from": "BDD8FBC6", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "BCD81D8F"}, {"arrows": "to", "from": "BDD8FBC6", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BDE10DDA"}, {"arrows": "to", "from": "BDD8FBC6", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "BDE25AFB"}, {"arrows": "to", "from": "BDD8FBC6", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "858963DE"}, {"arrows": "to", "from": "BDD8FBC6", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "C0880937"}, {"arrows": "to", "from": "BDE10DDA", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0B77749C"}, {"arrows": "to", "from": "BDE25AFB", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "B02C7AB1"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "9AAAD6EB"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "C0E60490"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "0191F4F7"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "0191F4F7"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "0191F4F7"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "0191F4F7"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "0191F4F7"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "0191F4F7"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0880937"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "4661D4E0"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "4661D4E0"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "C0A87483"}, {"arrows": "to", "from": "C0880937", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "C0AE1E09"}, {"arrows": "to", "from": "C0A87483", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "C0A88A47"}, {"arrows": "to", "from": "C0A88A47", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0C491249"}, {"arrows": "to", "from": "C0A88A47", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0A88A47"}, {"arrows": "to", "from": "C0A88A47", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "DF80BFE1"}, {"arrows": "to", "from": "C0AE1E09", "label": "EVENT_FORK", "title": "EVENT_FORK", "to": "C0AE3147"}, {"arrows": "to", "from": "C0AE3147", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "0C491249"}, {"arrows": "to", "from": "C0AE3147", "label": "EVENT_MODIFY_PROCESS", "title": "EVENT_MODIFY_PROCESS", "to": "C0AE3147"}, {"arrows": "to", "from": "C0AE3147", "label": "EVENT_MODIFY_FILE_ATTRIBUTES", "title": "EVENT_MODIFY_FILE_ATTRIBUTES", "to": "54DBE88D"}, {"arrows": "to", "from": "C956E3E6", "label": "EVENT_EXECUTE", "title": "EVENT_EXECUTE", "to": "5DDE5918"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "forceAtlas2Based": {
+            "avoidOverlap": 0,
+            "centralGravity": 0.01,
+            "damping": 0.4,
+            "gravitationalConstant": -30,
+            "springConstant": 0.08,
+            "springLength": 120
+        },
+        "solver": "forceAtlas2Based",
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+                      network.on("stabilizationProgress", function(params) {
+                          document.getElementById('loadingBar').removeAttribute("style");
+                          var maxWidth = 496;
+                          var minWidth = 20;
+                          var widthFactor = params.iterations/params.total;
+                          var width = Math.max(minWidth,maxWidth * widthFactor);
+                          document.getElementById('bar').style.width = width + 'px';
+                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
+                      });
+                      network.once("stabilizationIterationsDone", function() {
+                          document.getElementById('text').innerHTML = '100%';
+                          document.getElementById('bar').style.width = '496px';
+                          document.getElementById('loadingBar').style.opacity = 0;
+                          // really clean the dom element
+                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
+                      });
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
