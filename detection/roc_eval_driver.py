@@ -11,6 +11,9 @@ from elve.automaton_builder import AutomatonBuilder
 from elve.runtime_automaton import RuntimeAutomaton
 from elve.elve_engine import ELVEEngine
 
+from evaluation.roc_evaluation import evaluate_system, plot_roc
+from fusion.risk_fusion import fuse_scores
+
 import math
 import numpy as np
 from collections import Counter, defaultdict
@@ -41,7 +44,9 @@ def entropy(seq):
 # =====================================================
 
 def behavioral_vector(window):
+
     total = len(window)
+
     events = [e["event_type"] for e in window]
     cats = [e.get("category", "other") for e in window]
 
@@ -61,29 +66,41 @@ def behavioral_vector(window):
 
 
 def generate_behavioral_baseline(json_path, num_windows=150):
+
     events = stream_cadets_events(json_path)
     windows = sliding_event_windows(events)
 
     vectors = []
+
     for _ in range(num_windows):
         vectors.append(behavioral_vector(next(windows)))
 
     baseline = {}
+
     for k in vectors[0]:
         values = [v[k] for v in vectors]
         mean = sum(values) / len(values)
-        std = (sum((x - mean)**2 for x in values) / len(values))**0.5 + 1e-6
+
+        std = (
+            sum((x - mean) ** 2 for x in values) / len(values)
+        ) ** 0.5 + 1e-6
+
         baseline[k] = {"mean": mean, "std": std}
 
     return baseline
 
 
 def behavioral_score(vector, baseline):
+
     score = 0.0
+
     for k, v in vector.items():
+
         mu = baseline[k]["mean"]
         std = baseline[k]["std"]
+
         score += abs(v - mu) / std
+
     return score
 
 
@@ -92,14 +109,18 @@ def behavioral_score(vector, baseline):
 # =====================================================
 
 def generate_elve_baseline(json_path, num_windows=150):
+
     events = stream_cadets_events(json_path)
     windows = sliding_event_windows(events)
 
     builder = AutomatonBuilder()
 
     for _ in range(num_windows):
+
         window = next(windows)
+
         seq = [normalize(e["event_type"]) for e in window]
+
         builder.observe_sequence(seq)
 
     return builder.build(min_support=2)
@@ -131,10 +152,13 @@ def optimize_weights(cfg_vals, beh_vals, elve_vals):
 # =====================================================
 
 def correlation_boost(cfg_norm, beh_norm, elve_norm):
+
     if cfg_norm > 0.7 and elve_norm > 0.6:
         return 0.15
+
     if elve_norm > 0.7 and beh_norm > 0.6:
         return 0.10
+
     return 0.0
 
 
@@ -150,7 +174,9 @@ def main():
     print("Building baselines...")
 
     cfg_baseline = generate_baseline(JSON_PATH, num_windows=150)
+
     beh_baseline = generate_behavioral_baseline(JSON_PATH, num_windows=150)
+
     elve_baseline = generate_elve_baseline(JSON_PATH, num_windows=150)
 
     elve_runtime = RuntimeAutomaton(elve_baseline)
@@ -165,6 +191,7 @@ def main():
         next(windows)
 
     cfg_vals, beh_vals, elve_vals = [], [], []
+
     fused_scores = []
 
     for _ in range(100):
@@ -173,21 +200,28 @@ def main():
 
         G = build_provenance_graph(window)
         metrics = extract_graph_metrics(G)
+
         cfg_score, _ = compute_anomaly_score(metrics, cfg_baseline)
 
         beh_vec = behavioral_vector(window)
         beh_score = behavioral_score(beh_vec, beh_baseline)
 
-        # Per-process ELVE
         pid_groups = defaultdict(list)
+
         for e in window:
+
             pid = e.get("pid", "unknown")
+
             pid_groups[pid].append(normalize(e["event_type"]))
 
         pid_scores = []
+
         for pid, seq in pid_groups.items():
+
             if len(seq) >= 2:
+
                 score, _, _ = elve_engine.process_window(seq)
+
                 pid_scores.append(score)
 
         elve_score = max(pid_scores) if pid_scores else 0
@@ -202,16 +236,22 @@ def main():
     beh_max = max(beh_vals)
     elve_max = max(elve_vals)
 
-    # compute baseline fused scores
+    ranges = {
+    "cfg_max": cfg_max,
+    "beh_max": beh_max,
+    "elve_max": elve_max    
+    }
+
     for i in range(len(cfg_vals)):
-        cfg_norm = cfg_vals[i]/(cfg_max+1e-6)
-        beh_norm = beh_vals[i]/(beh_max+1e-6)
-        elve_norm = elve_vals[i]/(elve_max+1e-6)
+
+        cfg_norm = cfg_vals[i] / (cfg_max + 1e-6)
+        beh_norm = beh_vals[i] / (beh_max + 1e-6)
+        elve_norm = elve_vals[i] / (elve_max + 1e-6)
 
         fused = (
-            w_cfg*cfg_norm +
-            w_beh*beh_norm +
-            w_elve*elve_norm +
+            w_cfg * cfg_norm +
+            w_beh * beh_norm +
+            w_elve * elve_norm +
             correlation_boost(cfg_norm, beh_norm, elve_norm)
         )
 
@@ -222,10 +262,34 @@ def main():
     print(f"Optimized Weights → CFG:{w_cfg:.2f}, BEH:{w_beh:.2f}, ELVE:{w_elve:.2f}")
     print(f"Adaptive Threshold: {FUSION_THRESHOLD:.3f}")
 
+    # =====================================================
+    # ROC Evaluation (RUN ONCE)
+    # =====================================================
+
+    print("\nRunning ROC evaluation...")
+
+    scores, labels = evaluate_system(
+        JSON_PATH,
+        cfg_baseline,
+        beh_baseline,
+        elve_baseline,
+        fuse_scores,
+        ranges
+    )
+
+    auc_value = plot_roc(scores, labels)
+
+    print("AUC:", auc_value)
+
+    # =====================================================
+    # Detection Phase
+    # =====================================================
+
     print("\n--- Detection Phase ---")
 
     ema_score = None
     consecutive_anomalies = 0
+
     CONSECUTIVE_THRESHOLD = 3
 
     events = stream_cadets_events(JSON_PATH)
@@ -240,33 +304,40 @@ def main():
 
         G = build_provenance_graph(window)
         metrics = extract_graph_metrics(G)
+
         cfg_score, _ = compute_anomaly_score(metrics, cfg_baseline)
 
         beh_vec = behavioral_vector(window)
         beh_score = behavioral_score(beh_vec, beh_baseline)
 
-        # Per-process ELVE
         pid_groups = defaultdict(list)
+
         for e in window:
+
             pid = e.get("pid", "unknown")
+
             pid_groups[pid].append(normalize(e["event_type"]))
 
         pid_scores = []
+
         for pid, seq in pid_groups.items():
+
             if len(seq) >= 2:
+
                 score, _, _ = elve_engine.process_window(seq)
+
                 pid_scores.append(score)
 
         elve_score = max(pid_scores) if pid_scores else 0
 
-        cfg_norm = cfg_score/(cfg_max+1e-6)
-        beh_norm = beh_score/(beh_max+1e-6)
-        elve_norm = elve_score/(elve_max+1e-6)
+        cfg_norm = cfg_score / (cfg_max + 1e-6)
+        beh_norm = beh_score / (beh_max + 1e-6)
+        elve_norm = elve_score / (elve_max + 1e-6)
 
         fused = (
-            w_cfg*cfg_norm +
-            w_beh*beh_norm +
-            w_elve*elve_norm +
+            w_cfg * cfg_norm +
+            w_beh * beh_norm +
+            w_elve * elve_norm +
             correlation_boost(cfg_norm, beh_norm, elve_norm)
         )
 
@@ -282,10 +353,15 @@ def main():
             consecutive_anomalies = 0
 
         if ema_score > FUSION_THRESHOLD or consecutive_anomalies >= CONSECUTIVE_THRESHOLD:
+
             print("\n⚠️ ZERO-DAY ANOMALY DETECTED")
+
             visualize_pyvis(G, output_file=f"anomaly_window_{i+1}.html")
+
             break
+
         else:
+
             print("Normal behavior")
 
 
